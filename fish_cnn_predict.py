@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 import fish_cnn_train as train
 
-
+dict = {'0':'イッテンフエダイ', '1':'ハオコゼ', '2':'ゴンズイ', '3':'ソウシハギ', '4':'ギギ', '5':'アイゴ', '6':'その他'}
 def predict(image_path):
     # 画像の準備
     image = train.image2array(image_path)
@@ -34,7 +34,7 @@ def predict(image_path):
         probas = [f'{p:5.3f}' for p in probas[0]]
         print(f'prediction={label} probas={probas} image={image_path}')
 
-        return label
+        return dict[str(label)]
 
 
 if __name__ == '__main__':
