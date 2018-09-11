@@ -1,15 +1,20 @@
+# coding: utf-8
+'''
+https://qiita.com/tsuro/items/fa7bb3015feca1212732
+'''
+
 import os
 from urllib import request as req
 from urllib import error
 from urllib import parse
 import bs4 # $ pip install bs4
 
-keyword ='イッテンフエダイ'
-dir_name = 'ittennhuedai'
-if not os.path.exists(os.path.join(os.getcwd(), dir_name)):
-    print(f"mkdir dir_name: {os.path.join(os.getcwd(), dir_name)}")
-    os.mkdir(os.path.join(os.getcwd(), dir_name))
-
+keyword ='はおこぜ'
+dir_name = 'haokoze'
+image_dir = os.path.join(os.getcwd(), dir_name)
+if not os.path.exists(image_dir):
+    print(f"mkdir dir_name: {image_dir}")
+    os.mkdir(image_dir)
 
 urlKeyword = parse.quote(keyword)
 url = 'https://www.google.com/search?hl=jp&q=' + urlKeyword + '&btnG=Google+Search&tbs=0&safe=off&tbm=isch'
@@ -48,7 +53,7 @@ for ele in elems:
         print(f"open: {imageURL}")
         img = req.urlopen(imageURL)
         fn = './'+dir_name+'/'+dir_name+str(counter)+pal
-        print(f"¥tsave: {fn}")
+        print(f"save: {fn}")
         localfile = open(fn, 'wb')
         localfile.write(img.read())
         img.close()
