@@ -46,9 +46,21 @@ def get_fish_info_from_csv(fish_name):
 if __name__ == '__main__':
     is_only_basic_info = False
     fish_name = "ソウシハギ"
+    """
+    get_fish_info_from_csv
+    csvデータより情報を頂く
+    引数：fish_name(魚の名前)
+    戻り値：label(魚ID),fish_data_csv(該当する魚のデータ)
+    """
     label,fish_data_csv=get_fish_info_from_csv(fish_name)
     print('{0}:{1}'.format(fish_data_csv.loc[label, 'fish_name'], fish_data_csv.loc[label, 'poison_info']))
     print('----------------')
+    """
+    get_fish_info_fromweb
+    webより情報を頂く
+    引数：fish_name(魚の名前),is_only_basic_info(基本情報だけかテーブル情報か,true:基本情報だけ)
+    戻り値：fish_info(魚の情報)
+    """
     fish_info = get_fish_info_fromweb(fish_name, is_only_basic_info)
     print("## fish infomation after removing")
     print(fish_info)
