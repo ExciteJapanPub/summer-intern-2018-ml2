@@ -3,6 +3,7 @@ from urllib.parse import quote_plus
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import re
+import pandas as pd
 
 def remove_tags(html):
     html = str(html)
@@ -33,9 +34,21 @@ def get_fish_info_fromweb(fish_name, is_only_basic_info=True):
     basic_info = table.findAll('tr')[2]
     return remove_tags(basic_info)
 
+def get_fish_info_from_csv(fish_name):
+    csv_filename = 'fish_poison_database/fish_poison_database.csv'
+    database = pd.read_csv(csv_filename, encoding='utf_8')
+    database_exist = database[database['fish_name'] == fish_name]
+    fish_id = database_exist.iat[0, 0]
+    #print('{0}:{1}'.format(database_exist.loc[fish_id, 'fish_name'], database_exist.loc[fish_id, 'poison_info']))
+    return fish_id,database_exist
+
+
 if __name__ == '__main__':
     is_only_basic_info = False
     fish_name = "ソウシハギ"
+    label,fish_data_csv=get_fish_info_from_csv(fish_name)
+    print('{0}:{1}'.format(fish_data_csv.loc[label, 'fish_name'], fish_data_csv.loc[label, 'poison_info']))
+    print('----------------')
     fish_info = get_fish_info_fromweb(fish_name, is_only_basic_info)
     print("## fish infomation after removing")
     print(fish_info)
