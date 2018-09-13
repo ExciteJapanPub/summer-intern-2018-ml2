@@ -1,0 +1,7 @@
+label,fish_name,poison_info,url,cooking,habitat,season,note,fish_name_eigo
+0,イッテンフエダイ,触っても大丈夫だが、食用不可,https://www.zukan-bouz.com/syu/%E3%82%A4%E3%83%83%E3%83%86%E3%83%B3%E3%83%95%E3%82%A8%E3%83%80%E3%82%A4,食べれない,海水魚-[サンゴ礁域],不明,クロホシフエダイとは上顎の鋤骨の形で見分ける,ittennhuedai
+1,ハオコゼ,背鰭に毒あるが、内臓以外は食用可能,https://www.zukan-bouz.com/syu/%E3%83%8F%E3%82%AA%E3%82%B3%E3%82%BC,煮付け,海水魚-[浅いアマモ場、岩礁域],春~夏,-,haokoze
+2,ゴンズイ,胸鰭、背鰭に毒あるが、食用可能(料理前に必ず棘を取る),https://www.zukan-bouz.com/syu/%E3%82%B4%E3%83%B3%E3%82%BA%E3%82%A4,汁物、蒲焼き,海水魚-[沿岸の浅い岩礁域],春~夏,-,gonnzui
+3,ソウシハギ,触っても大丈夫だが、内臓を除去することで食用可能,https://www.zukan-bouz.com/syu/%E3%82%BD%E3%82%A6%E3%82%B7%E3%83%8F%E3%82%AE,刺身、セビチェ、カルパッチョ、汁物、ソテー、煮付け,海水魚-[沿岸域],不明,-,soushihagi
+4,ギギ,胸鰭、背鰭に毒あるが、食用可能,https://www.zukan-bouz.com/syu/%E3%82%AE%E3%82%AE,味噌汁、煮付け、白焼き、蒲焼き、焼き干し,淡水魚-[近畿以西の本州、四国吉野川水系、仁淀川水系、九州北東部],春~夏,-,gigi
+5,アイゴ,背鰭、腹鰭、尻鰭に毒あるが、食用可能,https://www.zukan-bouz.com/syu/%E3%82%A2%E3%82%A4%E3%82%B4,刺身、カルパッチョ、塩焼き、干物、煮付け、唐揚げ,海水魚-[沿岸の浅い岩礁域],秋~冬,-,aigo
