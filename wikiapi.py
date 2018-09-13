@@ -45,10 +45,10 @@ def get_fish_info_from_csv(fish_name,fish_info_dict_bool,fish_info_dict_name):
     label, fish_data = return_database_info(fish_name)
     fish_info_str = ''
     keys = [k for k, v in fish_info_dict_bool.items() if v == True]
-    fish_info_str=fish_info_str+f'<table border="1">'
+    fish_info_str=fish_info_str+f'<table class="table">'
     for key in keys:
         # print(fish_info_dict_name[key]+':'+fish_data.loc[label,key])
-        fish_info_str = fish_info_str + f'<tr><td>{fish_info_dict_name[key]}</td><td>{fish_data.loc[label,key]}</td></tr>'
+        fish_info_str = fish_info_str + f'<tr scope="row"><td>{fish_info_dict_name[key]}</td><td>{fish_data.loc[label,key]}</td></tr>'
     fish_info_str=fish_info_str+f'</table>'
     return fish_info_str
 
