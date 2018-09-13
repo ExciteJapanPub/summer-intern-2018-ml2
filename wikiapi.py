@@ -34,13 +34,21 @@ def get_fish_info_fromweb(fish_name, is_only_basic_info=True):
     basic_info = table.findAll('tr')[2]
     return remove_tags(basic_info)
 
-def get_fish_info_from_csv(fish_name):
-    csv_filename = 'fish_poison_database/fish_poison_database.csv'
-    database = pd.read_csv(csv_filename, encoding='utf_8')
-    database_exist = database[database['fish_name'] == fish_name]
-    fish_id = database_exist.iat[0, 0]
-    #print('{0}:{1}'.format(database_exist.loc[fish_id, 'fish_name'], database_exist.loc[fish_id, 'poison_info']))
+def return_database_info(fish_name):
+    filename = 'fish_poison_database/fish_poison_database.csv'
+    database = pd.read_csv(filename, encoding='utf_8')
+    database_exist=database[database['fish_name']==fish_name]
+    fish_id=database_exist.iat[0,0]
     return fish_id,database_exist
+
+def get_fish_info_from_csv(fish_name,fish_info_dict_bool,fish_info_dict_name):
+    label, fish_data = return_database_info(fish_name)
+    fish_info_str = ''
+    keys = [k for k, v in fish_info_dict_bool.items() if v == True]
+    for key in keys:
+        # print(fish_info_dict_name[key]+':'+fish_data.loc[label,key])
+        fish_info_str = fish_info_str + fish_info_dict_name[key] + ':' + fish_data.loc[label, key] + '\n'
+    return fish_info_str
 
 
 if __name__ == '__main__':
@@ -49,11 +57,16 @@ if __name__ == '__main__':
     """
     get_fish_info_from_csv
     csvデータより情報を頂く
-    引数：fish_name(魚の名前)
-    戻り値：label(魚ID),fish_data_csv(該当する魚のデータ)
+    引数：fish_name(魚の名前),fish_info_dict_bool(出力する情報（ブール値）),fish_info_dict_name(出力する情報のタグ（いじる必要なし）)
+    戻り値：fish_info_str(出力する必要の文字列)
     """
-    label,fish_data_csv=get_fish_info_from_csv(fish_name)
-    print('{0}:{1}'.format(fish_data_csv.loc[label, 'fish_name'], fish_data_csv.loc[label, 'poison_info']))
+    fish_info_key_name = ['fish_name', 'poison_info', 'habitat', 'season', 'cooking', 'note']
+    fish_info_name = ['魚名', '毒情報', '生息域', '旬', '料理', '備考']
+    fish_info_bool = [True, True, True, True, True, True]
+    fish_info_dict_bool = dict(zip(fish_info_key_name, fish_info_bool))
+    fish_info_dict_name = dict(zip(fish_info_key_name, fish_info_name))
+    fish_info_str=get_fish_info_from_csv(fish_name,fish_info_dict_bool,fish_info_dict_name)
+    print(fish_info_str)
     print('----------------')
     """
     get_fish_info_fromweb
