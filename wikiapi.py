@@ -47,7 +47,7 @@ def get_fish_info_from_csv(fish_name,fish_info_dict_bool,fish_info_dict_name):
     keys = [k for k, v in fish_info_dict_bool.items() if v == True]
     for key in keys:
         # print(fish_info_dict_name[key]+':'+fish_data.loc[label,key])
-        fish_info_str = fish_info_str + fish_info_dict_name[key] + ':' + fish_data.loc[label, key] + '\n'
+        fish_info_str = fish_info_str + fish_info_dict_name[key] + ':' + fish_data.loc[label, key] + '<br>'
     return fish_info_str
 
 
