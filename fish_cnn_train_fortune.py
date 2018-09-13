@@ -36,8 +36,9 @@ def get_args():
     '''
     parser = argparse.ArgumentParser()
     parser.add_argument('--init_load', action='store_true')
-    parser.add_argument('--tune_num', default=5, type=int)
+    parser.add_argument('--tune_num', default=1, type=int)
     parser.add_argument('--same_param_num', default=3, type=int)
+    parser.add_argument('--result_dir', default='./result', type=str)
     args = parser.parse_args()
     return args
 
@@ -49,11 +50,10 @@ def get_hyperparams():
     batch: batch size
     '''
     hyperparams = {
-        "lr": random.choice([random.uniform(0.001, 0.01)]),
-        "dr": random.choice([0.35, 0.4, 0.45, 0.5]),
-        "epoch": random.choice([20, 30, 40, 50]),
-        "batch": random.choice([32, 64, 128, 256]),
-
+        "lr": random.choice([random.uniform(0.0005, 0.002)]),
+        "dr": random.choice([0.4, 0.5, 0.6]),
+        "epoch": random.choice([20, 30]),
+        "batch": random.choice([32, 64]),
     }
     return hyperparams
 
@@ -144,17 +144,30 @@ def inference(x, keep_prob, image_size, channel_num, class_num):
     conv1_in = channel_num
     conv1_out = 32
     conv1 = conv_layer(x_image, filter_size, conv1_in, conv1_out)
+    # batch normalization
+    batch1 = batch_normalization(conv1)
     # 第1プーリング層
-    pool1, out_size = pool_layer(conv1, image_size)
+    pool1, out_size = pool_layer(batch1, image_size)
 
     # 第2畳み込み層
     conv2_in = conv1_out
-    conv2_out = 64
+    conv2_out = 32
     conv2 = conv_layer(pool1, filter_size, conv2_in, conv2_out)
-    #batch normalization
-    batch = batch_normalization(conv2)
+    # batch normalization
+    batch2 = batch_normalization(conv2)
     # 第2プーリング層
-    pool2, out_size = pool_layer(batch, out_size)
+    pool2, out_size = pool_layer(batch2, out_size)
+
+    '''
+    # 第3畳み込み層
+    conv3_in = conv2_out
+    conv3_out = 32
+    conv3 = conv_layer(pool2, filter_size, conv3_in, conv3_out)
+    # batch normalization
+    batch3 = batch_normalization(conv3)
+    # 第3プーリング層
+    pool3, out_size = pool_layer(batch3, out_size)
+    '''
 
     # 画像を平坦化してベクトルにする
     dimension = out_size * out_size * conv2_out
@@ -225,6 +238,9 @@ def train(trains, tests, hyperparams, dir):
         # セッションの開始及び初期化
         sess.run(tf.global_variables_initializer())
 
+        of_count = 0
+        pre_train_accuracy = 150
+
         # 学習
         comment = '\n- start training'
         print('\n- start training')
@@ -246,6 +262,20 @@ def train(trains, tests, hyperparams, dir):
                 train_accuracy, train_loss = sess.run([accuracy, loss_value], feed_dict={x: train_x, labels: train_y, keep_prob: 1.0})
                 print(f'\n[epoch {epoch+1:02d}] acc={train_accuracy:12.10f} loss={train_loss:12.10f}')
                 comment += f'\n[epoch {epoch+1:02d}] acc={train_accuracy:12.10f} loss={train_loss:12.10f}'
+                print(f"abs( {pre_train_accuracy} - {train_accuracy} ) = {abs(pre_train_accuracy - train_accuracy)}")
+                if (epoch > 3) and abs(pre_train_accuracy - train_accuracy) < 0.01:
+                    # 以下のエポックの間、学習が進まなかったら終了
+                    if of_count > 2:
+                        early_stopcomment = f"Early stop: {epoch}epochs"
+                        print(early_stopcomment)
+                        with open(os.path.join(dir, '_early_stop.txt'), mode="w") as f:
+                            f.write(early_stopcomment)
+                        break
+                    else:
+                        of_count += 1
+                else:
+                    of_count = 0
+                    pre_train_accuracy = train_accuracy
 
         # 学習が終わったら評価データに対して精度を出す
         test_accuracy, test_loss, prediction_y = sess.run([accuracy, loss_value, prediction], feed_dict={x: test_x, labels: test_y, keep_prob: 1.0})
@@ -266,7 +296,7 @@ def train(trains, tests, hyperparams, dir):
         with open(os.path.join(dir, 'accuracy.txt'), mode="w") as f:
             f.write(comment)
 
-        fn = f"test_accuracy_{test_accuracy:12.10f}"
+        fn = f"_test_accuracy_{test_accuracy:12.10f}"
         with open(os.path.join(dir, f'{fn}.txt'), mode="w") as f:
             f.write(f"test accuracy is {test_accuracy:12.10f}")
 
@@ -280,10 +310,11 @@ if __name__ == '__main__':
     $ mkdir /Users/excite3/Work/summer-intern-2018-ml2/pkl
     $ mkdir /Users/excite3/Work/summer-intern-2018-ml2/result
     
-    初めての実行時と画像サイズを変えた場合は必ず　--init_load を指定して実行する
+    初めての実行時は必ず　--init_load を指定して実行する
     usage: $ python fish_cnn_train_fortune.py --init_load --tune_num 1
     '''
     args = get_args()
+    print(args)
     # 学習データと評価データをロードする
     '''
     # 書き込み先サイズが2GBを超える場合は下を利用. 画像サイズ128を指定した場合は2GBを超えた
@@ -295,15 +326,15 @@ if __name__ == '__main__':
         train_list = load_images(TRAIN_IMAGES_PATH, TRAIN_LABELS_PATH)
         test_list = load_images(TEST_IMAGES_PATH, TEST_LABELS_PATH)
         # pickleファイルによる出力
-        with open(os.path.join('./pkl', 'train.pkl'), mode="wb") as f:
+        with open(os.path.join('./pkl', f'train{IMAGE_SIZE}.pkl'), mode="wb") as f:
             pickle.dump(train_list, f)
-        with open(os.path.join('./pkl', 'test.pkl'), mode="wb") as f:
+        with open(os.path.join('./pkl', f'test{IMAGE_SIZE}.pkl'), mode="wb") as f:
             pickle.dump(test_list, f)
     else:
         print("load pickle file")
-        with open(os.path.join('./pkl', 'train.pkl'), mode="rb") as f:
+        with open(os.path.join('./pkl', f'train{IMAGE_SIZE}.pkl'), mode="rb") as f:
             train_list = pickle.load(f)
-        with open(os.path.join('./pkl', 'test.pkl'), mode="rb") as f:
+        with open(os.path.join('./pkl', f'test{IMAGE_SIZE}.pkl'), mode="rb") as f:
             test_list = pickle.load(f)
 
     # hyperparameter tuning
@@ -312,20 +343,21 @@ if __name__ == '__main__':
         # 学習開始
         hyperparams = get_hyperparams()
         print(hyperparams)
-        dir = os.path.join('result', f"lr{hyperparams['lr']}dr{hyperparams['dr']}ep{hyperparams['epoch']}ba{hyperparams['batch']}")
+        dir = os.path.join(args.result_dir, f"lr{hyperparams['lr']}zdr{hyperparams['dr']}ep{hyperparams['epoch']}ba{hyperparams['batch']}")
         comment = f"learning_rate: {hyperparams['lr']}, dropout_rate: {hyperparams['dr']}, epoch: {hyperparams['epoch']}, batch size: {hyperparams['batch']}"
         if not os.path.exists(dir):
             os.mkdir(dir)
         else:
             for i in range(args.same_param_num):
-                dir = f"{i}_{dir}"
-                if not os.path.exists(dir):
-                    os.mkdir(dir)
+                tmp_dir = os.path.join(args.result_dir,f"{i}_lr{hyperparams['lr']}zdr{hyperparams['dr']}ep{hyperparams['epoch']}ba{hyperparams['batch']}")
+                if not os.path.exists(tmp_dir):
+                    os.mkdir(tmp_dir)
                 else:
-                    with open(os.path.join('result', 'memo.txt'), mode="w") as f:
+                    with open(os.path.join('./result', '_memo.txt'), mode="w") as f:
                         comment = f"\ncomment is over {args.same_param_num} times."
                         f.write(comment)
                     continue
-        with open(os.path.join(dir, 'memo.txt'), mode="w") as f:
+                dir = tmp_dir
+        with open(os.path.join(dir, '_memo.txt'), mode="w") as f:
             f.write(comment)
         train(train_list, test_list, hyperparams, dir)
