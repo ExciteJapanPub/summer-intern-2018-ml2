@@ -50,6 +50,7 @@ def get_fish_info_from_csv(fish_name,fish_info_dict_bool,fish_info_dict_name):
         # print(fish_info_dict_name[key]+':'+fish_data.loc[label,key])
         fish_info_str = fish_info_str + f'<tr scope="row"><td>{fish_info_dict_name[key]}</td><td>{fish_data.loc[label,key]}</td></tr>'
     fish_info_str=fish_info_str+f'</table>'
+    fish_info_str=fish_info_str+f'<p>生息地域マップ</p>'
     fish_info_str = fish_info_str + f'<img src="fish_poison_database/{fish_data.loc[label,"fish_name_eigo"]}.png" class="img-responsive">'
     return fish_info_str
 
